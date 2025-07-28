@@ -210,13 +210,11 @@ jobs:
 
 ---
 
-## 9. Fluxo de trabalho futuro
+## 9. Fluxo de trabalho 
 
 - Desenvolva no Power Apps (Dev).  
 - Faça commit e push no GitHub (branch main).  
 - GitHub Actions exporta, desempacota, commita e importa solução automaticamente.
 
 ---
-
-Quer um repositório exemplo com essa estrutura pronta?
 
