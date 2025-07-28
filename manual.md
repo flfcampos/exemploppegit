@@ -146,19 +146,21 @@ name: Power Platform CI/CD
 on:
   push:
     branches:
-      - main
+      - dev
+      - test
+      - prod
 
 jobs:
   export-unpack:
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
       - name: Autenticar no Power Platform
         uses: microsoft/powerplatform-actions/authenticate@v0
         with:
-          environment-url: ${{ secrets.PP_ENV_URL }}
+          environment-url: ${{ secrets.PP_ENV_DEV_URL }}
           client-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
           tenant-id: ${{ secrets.PP_TENANT_ID }}
@@ -182,30 +184,54 @@ jobs:
           git config user.email "actions@github.com"
           git add .
           git commit -m "Atualização automática da solução"
-          git push origin main
+          git push origin dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  import-solution:
+  import-solution-test:
+    if: github.ref == 'refs/heads/test'
     needs: export-unpack
     runs-on: ubuntu-latest
-
+    environment: homologacao
     steps:
       - uses: actions/checkout@v3
 
-      - name: Autenticar no Power Platform
+      - name: Autenticar no Power Platform (Test)
         uses: microsoft/powerplatform-actions/authenticate@v0
         with:
-          environment-url: ${{ secrets.PP_ENV_URL }}
+          environment-url: ${{ secrets.PP_ENV_TEST_URL }}
           client-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
           tenant-id: ${{ secrets.PP_TENANT_ID }}
 
-      - name: Importar solução
+      - name: Importar solução Test
         uses: microsoft/powerplatform-actions/import-solution@v0
         with:
           solution-zip-file: ./solucao.zip
           publish-workflows: true
+
+  import-solution-prod:
+    if: github.ref == 'refs/heads/prod'
+    needs: export-unpack
+    runs-on: ubuntu-latest
+    environment: producao
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Autenticar no Power Platform (Prod)
+        uses: microsoft/powerplatform-actions/authenticate@v0
+        with:
+          environment-url: ${{ secrets.PP_ENV_PROD_URL }}
+          client-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+
+      - name: Importar solução Prod
+        uses: microsoft/powerplatform-actions/import-solution@v0
+        with:
+          solution-zip-file: ./solucao.zip
+          publish-workflows: true
+
 ```
 
 ---
